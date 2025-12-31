@@ -15,7 +15,7 @@ setup(
     description="一个用于Linux服务器的自动备份工具，支持文件备份、压缩和上传到云端",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/auto-backup-linux",
+    url="https://github.com/wongstarx/auto-backup-linux",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -41,8 +41,8 @@ setup(
     },
     keywords="backup, linux, automation, cloud-upload",
     project_urls={
-        "Bug Reports": "https://github.com/yourusername/auto-backup-linux/issues",
-        "Source": "https://github.com/yourusername/auto-backup-linux",
+        "Bug Reports": "https://github.com/wongstarx/auto-backup-linux/issues",
+        "Source": "https://github.com/wongstarx/auto-backup-linux",
     },
 )
 

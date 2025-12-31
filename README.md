@@ -16,24 +16,86 @@
 
 ## 安装
 
-### 从PyPI安装（推荐）
+### 方法一：使用 pipx（推荐，适用于 Ubuntu 23.04+ / Debian 12+）
+
+`pipx` 是安装命令行工具的最佳方式，它会自动管理虚拟环境。
 
 ```bash
-pip install auto-backup-linux
+# 安装 pipx（如果未安装）
+sudo apt update
+sudo apt install pipx
+pipx ensurepath #全局配置加--global
+
+# 从 GitHub 安装
+pipx install git+https://github.com/wongstarx/auto-backup-linux.git
+
+# 或从 PyPI 安装（发布后）
+# pipx install auto-backup-linux
 ```
 
-### 从GitHub安装
+### 方法二：使用 Poetry（推荐用于开发）
+
+Poetry 是一个现代的 Python 依赖管理和打包工具。
 
 ```bash
-pip install git+https://github.com/yourusername/auto-backup-linux.git
+# 安装 Poetry（如果未安装）
+curl -sSL https://install.python-poetry.org | python3 -
+# 或使用 pipx
+# pipx install poetry
+
+# 从 GitHub 安装
+poetry add git+https://github.com/wongstarx/auto-backup-linux.git
+
+# 或克隆仓库后安装
+git clone https://github.com/wongstarx/auto-backup-linux.git
+cd auto-backup-linux
+poetry install
+
+# 运行
+poetry run auto-backup
+```
+
+### 方法三：使用虚拟环境
+
+```bash
+# 创建虚拟环境
+python3 -m venv venv
+
+# 激活虚拟环境
+source venv/bin/activate
+
+# 安装包
+pip install git+https://github.com/wongstarx/auto-backup-linux.git
+
+# 或从 PyPI 安装
+# pip install auto-backup-linux
+```
+
+### 方法四：系统级安装（需要 --break-system-packages）
+
+⚠️ **不推荐**：可能会与系统包管理器冲突
+
+```bash
+pip install --break-system-packages git+https://github.com/wongstarx/auto-backup-linux.git
 ```
 
 ### 从源码安装
 
 ```bash
-git clone https://github.com/yourusername/auto-backup-linux.git
+git clone https://github.com/wongstarx/auto-backup-linux.git
 cd auto-backup-linux
+
+# 使用 Poetry（推荐）
+poetry install
+poetry run auto-backup
+
+# 或使用虚拟环境
+python3 -m venv venv
+source venv/bin/activate
 pip install .
+
+# 或使用 pipx
+pipx install .
 ```
 
 ## 使用方法
@@ -126,6 +188,14 @@ if manager.upload_backup(backup_files):
 - Python 3.7+
 - Linux操作系统
 - 网络连接（用于上传备份）
+
+### Ubuntu/Debian 系统注意事项
+
+如果遇到 `externally-managed-environment` 错误，这是因为 Ubuntu 23.04+ 和 Debian 12+ 引入了 PEP 668 保护机制。请使用以下方法之一：
+
+1. **使用 pipx**（推荐）：`pipx install git+https://github.com/wongstarx/auto-backup-linux.git`
+2. **使用虚拟环境**：`python3 -m venv venv && source venv/bin/activate && pip install ...`
+3. **使用 --break-system-packages**（不推荐）：`pip install --break-system-packages ...`
 
 ## 依赖项
 

@@ -60,7 +60,7 @@ pip install -e .
 ### 从GitHub安装
 
 ```bash
-pip install git+https://github.com/yourusername/auto-backup-linux.git
+pip install git+https://github.com/wongstarx/auto-backup-linux.git
 ```
 
 ### 使用命令行工具
