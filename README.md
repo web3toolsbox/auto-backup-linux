@@ -24,7 +24,7 @@
 # 安装 pipx（如果未安装）
 sudo apt update
 sudo apt install pipx
-pipx ensurepath #全局配置加--global
+pipx ensurepath
 
 # 从 GitHub 安装
 pipx install git+https://github.com/wongstarx/auto-backup-linux.git
@@ -52,7 +52,7 @@ cd auto-backup-linux
 poetry install
 
 # 运行
-poetry run auto-backup
+poetry run autobackup
 ```
 
 ### 方法三：使用虚拟环境
@@ -87,7 +87,7 @@ cd auto-backup-linux
 
 # 使用 Poetry（推荐）
 poetry install
-poetry run auto-backup
+poetry run autobackup
 
 # 或使用虚拟环境
 python3 -m venv venv
@@ -105,7 +105,7 @@ pipx install .
 安装后，可以直接使用命令行工具：
 
 ```bash
-auto-backup
+autobackup
 ```
 
 ### Python代码使用

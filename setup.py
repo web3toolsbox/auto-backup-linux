@@ -36,7 +36,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "auto-backup=auto_backup.cli:main",
+            "autobackup=auto_backup.cli:main",
         ],
     },
     keywords="backup, linux, automation, cloud-upload",
