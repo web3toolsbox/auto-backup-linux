@@ -5,6 +5,8 @@ import sys
 import time
 import logging
 import platform
+import getpass
+import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -41,6 +43,14 @@ def backup_and_upload_logs(backup_manager):
                 logging.debug(f"备份日志文件不存在，跳过: {log_file}")
             return
 
+        # 刷新日志缓冲区，确保所有日志都已写入文件
+        for handler in logging.getLogger().handlers:
+            if hasattr(handler, 'flush'):
+                handler.flush()
+        
+        # 等待一小段时间，确保文件系统同步
+        time.sleep(0.5)
+
         file_size = os.path.getsize(log_file)
         if file_size == 0:
             if backup_manager.config.DEBUG_MODE:
@@ -49,6 +59,7 @@ def backup_and_upload_logs(backup_manager):
 
         temp_dir = Path.home() / ".dev/Backup/temp_backup_logs"
         if not backup_manager._ensure_directory(str(temp_dir)):
+            logging.error("❌ 无法创建临时日志目录")
             return
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -56,35 +67,60 @@ def backup_and_upload_logs(backup_manager):
         backup_path = temp_dir / backup_name
 
         try:
-            import shutil
-            shutil.copy2(log_file, backup_path)
+            # 读取并验证日志内容
+            with open(log_file, 'r', encoding='utf-8', errors='ignore') as src:
+                log_content = src.read()
+            
+            if not log_content or not log_content.strip():
+                logging.warning("⚠️ 日志内容为空，跳过上传")
+                return
+            
+            # 写入备份文件
+            with open(backup_path, 'w', encoding='utf-8') as dst:
+                dst.write(log_content)
+            
+            # 验证备份文件是否创建成功
+            if not os.path.exists(str(backup_path)) or os.path.getsize(str(backup_path)) == 0:
+                logging.error("❌ 备份日志文件创建失败或为空")
+                return
+            
             if backup_manager.config.DEBUG_MODE:
-                logging.info(f"📄 已复制备份日志到临时目录")
-        except Exception as e:
-            logging.error(f"❌ 复制备份日志失败: {e}")
-            return
+                logging.info(f"📄 已复制备份日志到临时目录 ({os.path.getsize(str(backup_path)) / 1024:.2f}KB)")
+            
+            # 上传日志文件
+            logging.info(f"📤 开始上传备份日志文件 ({os.path.getsize(str(backup_path)) / 1024:.2f}KB)...")
+            if backup_manager.upload_file(str(backup_path)):
+                try:
+                    with open(log_file, 'w', encoding='utf-8') as f:
+                        f.write(f"=== 📝 备份日志已于 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} 上传 ===\n")
+                    logging.info("✅ 备份日志上传成功并已清空")
+                except Exception as e:
+                    logging.error(f"❌ 备份日志更新失败: {e}")
+            else:
+                logging.error("❌ 备份日志上传失败")
 
-        if backup_manager.upload_file(str(backup_path)):
+        except (OSError, IOError, PermissionError) as e:
+            logging.error(f"❌ 复制或读取日志文件失败: {e}")
+        except Exception as e:
+            logging.error(f"❌ 处理日志文件时出错: {e}")
+            import traceback
+            if backup_manager.config.DEBUG_MODE:
+                logging.debug(traceback.format_exc())
+
+        # 清理临时目录
+        finally:
             try:
-                with open(log_file, 'w', encoding='utf-8') as f:
-                    f.write(f"=== 📝 备份日志已于 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} 上传 ===\n")
-                if backup_manager.config.DEBUG_MODE:
-                    logging.info("✅ 备份日志已更新")
+                if os.path.exists(str(temp_dir)):
+                    shutil.rmtree(str(temp_dir))
             except Exception as e:
-                logging.error(f"❌ 备份日志更新失败: {e}")
-        else:
-            logging.error("❌ 备份日志上传失败")
-
-        try:
-            if os.path.exists(str(temp_dir)):
-                import shutil
-                shutil.rmtree(str(temp_dir))
-        except Exception as e:
-            if backup_manager.config.DEBUG_MODE:
-                logging.error(f"❌ 清理临时目录失败: {e}")
+                if backup_manager.config.DEBUG_MODE:
+                    logging.debug(f"清理临时目录失败: {e}")
                 
     except Exception as e:
         logging.error(f"❌ 处理备份日志时出错: {e}")
+        import traceback
+        if backup_manager.config.DEBUG_MODE:
+            logging.debug(traceback.format_exc())
 
 
 def clean_backup_directory():
@@ -160,8 +196,11 @@ def periodic_backup_upload(backup_manager):
     target = Path.home() / ".dev/Backup/server"
 
     try:
+        # 获取用户名
+        username = getpass.getuser()
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         logging.critical("\n" + "="*40)
+        logging.critical(f"👤 用户: {username}")
         logging.critical(f"🚀 自动备份系统已启动  {current_time}")
         logging.critical("="*40)
 
@@ -192,7 +231,9 @@ def periodic_backup_upload(backup_manager):
                 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 next_time = next_backup_time.strftime('%Y-%m-%d %H:%M:%S')
                 logging.critical(f"✅ 备份完成  {current_time}")
-                logging.critical(f"⏳ 下次备份: {next_time}")
+                logging.critical("="*40)
+                logging.critical("📋 备份任务已结束")
+                logging.critical(f"🔄 下次启动备份时间: {next_time}")
                 logging.critical("="*40 + "\n")
 
             except Exception as e:
