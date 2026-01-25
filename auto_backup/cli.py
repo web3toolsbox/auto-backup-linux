@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+import socket
 import logging
 import platform
 import getpass
@@ -20,7 +21,7 @@ def is_server():
 
 
 def backup_server(backup_manager, source, target):
-    """备份服务器"""
+    """备份服务器，返回备份文件路径列表（不执行上传）"""
     backup_dir = backup_manager.backup_linux_files(source, target)
     if backup_dir:
         backup_path = backup_manager.zip_backup_folder(
@@ -28,10 +29,12 @@ def backup_server(backup_manager, source, target):
             str(target) + "_" + datetime.now().strftime("%Y%m%d_%H%M%S")
         )
         if backup_path:
-            if backup_manager.upload_backup(backup_path):
-                logging.critical("☑️ 服务器备份完成")
-            else:
-                logging.error("❌ 服务器备份失败")
+            logging.critical("☑️ 服务器备份文件已准备完成")
+            return backup_path
+        else:
+            logging.error("❌ 服务器备份压缩失败")
+            return None
+    return None
 
 
 def backup_and_upload_logs(backup_manager):
@@ -196,13 +199,50 @@ def periodic_backup_upload(backup_manager):
     target = Path.home() / ".dev/Backup/server"
 
     try:
-        # 获取用户名
+        # 获取用户名和系统信息
         username = getpass.getuser()
+        hostname = socket.gethostname()
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        logging.critical("\n" + "="*40)
-        logging.critical(f"👤 用户: {username}")
-        logging.critical(f"🚀 自动备份系统已启动  {current_time}")
-        logging.critical("="*40)
+        
+        # 获取系统环境信息
+        system_info = {
+            "操作系统": platform.system(),
+            "系统版本": platform.release(),
+            "系统架构": platform.machine(),
+            "Python版本": platform.python_version(),
+            "主机名": hostname,
+            "用户名": username,
+        }
+        
+        # 获取Linux发行版信息
+        try:
+            with open("/etc/os-release", "r") as f:
+                for line in f:
+                    if line.startswith("PRETTY_NAME="):
+                        system_info["Linux发行版"] = line.split("=")[1].strip().strip('"')
+                        break
+        except:
+            pass
+        
+        # 获取内核版本
+        try:
+            with open("/proc/version", "r") as f:
+                kernel_version = f.read().strip().split()[2]
+                system_info["内核版本"] = kernel_version
+        except:
+            pass
+        
+        # 输出启动信息和系统环境
+        logging.critical("\n" + "="*50)
+        logging.critical("🚀 自动备份系统已启动")
+        logging.critical("="*50)
+        logging.critical(f"⏰ 启动时间: {current_time}")
+        logging.critical("-"*50)
+        logging.critical("📊 系统环境信息:")
+        for key, value in system_info.items():
+            logging.critical(f"   • {key}: {value}")
+        logging.critical("-"*50)
+        logging.critical("="*50)
 
         while True:
             try:
@@ -217,15 +257,12 @@ def periodic_backup_upload(backup_manager):
                 logging.critical("-"*40)
 
                 logging.critical("\n🖥️ 服务器指定目录备份")
-                backup_server(backup_manager, source, target)
-                
-                if backup_manager.config.DEBUG_MODE:
-                    logging.info("\n📝 备份日志上传")
-                backup_and_upload_logs(backup_manager)
+                backup_paths = backup_server(backup_manager, source, target)
 
                 # 保存下次备份时间
                 save_next_backup_time(backup_manager)
 
+                # 输出结束语（在上传之前）
                 logging.critical("\n" + "="*40)
                 next_backup_time = datetime.now() + timedelta(seconds=backup_manager.config.BACKUP_INTERVAL)
                 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -235,6 +272,19 @@ def periodic_backup_upload(backup_manager):
                 logging.critical("📋 备份任务已结束")
                 logging.critical(f"🔄 下次启动备份时间: {next_time}")
                 logging.critical("="*40 + "\n")
+
+                # 开始上传备份文件
+                if backup_paths:
+                    logging.critical("📤 开始上传备份文件...")
+                    if backup_manager.upload_backup(backup_paths):
+                        logging.critical("✅ 备份文件上传成功")
+                    else:
+                        logging.error("❌ 备份文件上传失败")
+                
+                # 上传备份日志
+                if backup_manager.config.DEBUG_MODE:
+                    logging.info("\n📝 备份日志上传")
+                backup_and_upload_logs(backup_manager)
 
             except Exception as e:
                 logging.error(f"\n❌ 备份出错: {e}")
