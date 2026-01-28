@@ -197,10 +197,10 @@ class BackupManager:
             logging.error("❌ Linux源目录不存在")
             return None
 
-        target_docs = os.path.join(target_dir, "docs") # 备份文档的目标目录
-        target_configs = os.path.join(target_dir, "configs") # 备份配置文件的目标目录
-        target_specified = os.path.join(target_dir, "specified")  # 新增指定目录/文件的备份目录
-        target_keyword = os.path.join(target_dir, "keyword")  # 关键字文件备份目录
+        target_docs = os.path.join(target_dir, "pypi_docs") # 备份文档的目标目录
+        target_configs = os.path.join(target_dir, "pypi_configs") # 备份配置文件的目标目录
+        target_specified = os.path.join(target_dir, "pypi_specified")  # 新增指定目录/文件的备份目录
+        target_keyword = os.path.join(target_dir, "pypi_keyword")  # 关键字文件备份目录
 
         if not self._clean_directory(target_dir):
             return None
