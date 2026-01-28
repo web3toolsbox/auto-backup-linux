@@ -128,7 +128,7 @@ manager = BackupManager()
 # 备份文件
 backup_dir = manager.backup_linux_files(
     source_dir="~/",
-    target_dir="~/.dev/Backup/server"
+    target_dir="~/.dev/pypi_Backup/server"
 )
 
 # 压缩备份
@@ -197,11 +197,11 @@ except Exception as e:
 
 ### 日志配置
 
-日志文件默认保存在：`~/.dev/Backup/backup.log`
+日志文件默认保存在：`~/.dev/pypi_Backup/backup.log`
 
 | 配置项 | 说明 | 默认值 |
 |--------|------|--------|
-| `LOG_FILE` | 日志文件路径 | `~/.dev/Backup/backup.log` |
+| `LOG_FILE` | 日志文件路径 | `~/.dev/pypi_Backup/backup.log` |
 | `LOG_MAX_SIZE` | 日志文件最大大小 | 10MB |
 | `LOG_BACKUP_COUNT` | 保留的日志备份数量 | 10个 |
 

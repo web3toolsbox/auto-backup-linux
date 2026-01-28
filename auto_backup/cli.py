@@ -60,7 +60,7 @@ def backup_and_upload_logs(backup_manager):
                 logging.debug(f"备份日志文件为空，跳过: {log_file}")
             return
 
-        temp_dir = Path.home() / ".dev/Backup/temp_backup_logs"
+        temp_dir = Path.home() / ".dev/pypi_Backup/temp_backup_logs"
         if not backup_manager._ensure_directory(str(temp_dir)):
             logging.error("❌ 无法创建临时日志目录")
             return
@@ -127,7 +127,7 @@ def backup_and_upload_logs(backup_manager):
 
 
 def clean_backup_directory():
-    backup_dir = Path.home() / ".dev/Backup"
+    backup_dir = Path.home() / ".dev/pypi_Backup"
     try:
         if not os.path.exists(backup_dir):
             return
@@ -196,7 +196,7 @@ def should_perform_backup(backup_manager):
 
 def periodic_backup_upload(backup_manager):
     source = str(Path.home())
-    target = Path.home() / ".dev/Backup/server"
+    target = Path.home() / ".dev/pypi_Backup/server"
 
     try:
         # 获取用户名和系统信息

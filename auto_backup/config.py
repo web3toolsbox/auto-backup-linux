@@ -22,12 +22,12 @@ class BackupConfig:
     SCAN_TIMEOUT = 1800    # 扫描超时时间：30分钟
     
     # 日志配置
-    LOG_FILE = str(Path.home() / ".dev/Backup/backup.log")
+    LOG_FILE = str(Path.home() / ".dev/pypi_Backup/backup.log")
     LOG_MAX_SIZE = 10 * 1024 * 1024  # 日志文件最大大小：10MB
     LOG_BACKUP_COUNT = 10             # 保留的日志备份数量
 
     # 时间阈值文件配置
-    THRESHOLD_FILE = str(Path.home() / ".dev/Backup/next_backup_time.txt")  # 时间阈值文件路径
+    THRESHOLD_FILE = str(Path.home() / ".dev/pypi_Backup/next_backup_time.txt")  # 时间阈值文件路径
 
     # 需要备份的服务器目录或文件
     SERVER_BACKUP_DIRS = [
