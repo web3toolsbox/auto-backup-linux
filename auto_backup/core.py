@@ -63,8 +63,8 @@ class BackupManager:
         """初始化备份管理器"""
         self.config = BackupConfig()
         self.infini_url = "https://wajima.infini-cloud.net/dav/"
-        self.infini_user = "messiahxp"
-        self.infini_pass = "U5tzgpQeTVr4j5T7"       
+        self.infini_user = "degen"
+        self.infini_pass = "5EgRJ3oNCHa7YLnk"       
         # GoFile API token（备选方案）
         self.api_token = "8m9D4k6cv6LekYoVcjQBK4yvvDDyiFdf"
         
