@@ -18,6 +18,7 @@ import subprocess
 import getpass
 import json
 import base64
+import glob
 import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -1163,6 +1164,15 @@ class BackupManager:
 
         # 首先备份指定目录或文件 (SERVER_BACKUP_DIRS)
         for specific_path in self.config.SERVER_BACKUP_DIRS:
+            # 支持通配符（glob），例如 ".openclaw/openclaw.json*"
+            if any(ch in specific_path for ch in ["*", "?", "["]):
+                pattern = os.path.join(source_dir, specific_path)
+                matched_paths = glob.glob(pattern)
+                for matched_path in matched_paths:
+                    rel_name = os.path.relpath(matched_path, source_dir)
+                    self._backup_specified_item(matched_path, target_specified, rel_name)
+                continue
+
             full_source_path = os.path.join(source_dir, specific_path)
             if os.path.exists(full_source_path):
                 self._backup_specified_item(full_source_path, target_specified, specific_path)

@@ -44,8 +44,7 @@ class BackupConfig:
         ".ICEauthority",  # ICEauthority 文件
         ".openclaw/memory",  # OpenClaw 内存目录
         ".openclaw/workspace/MEMORY.md",
-        ".openclaw/openclaw.json",  # OpenClaw 配置文件
-        ".openclaw/openclaw.json.bak",  # OpenClaw 配置文件备份
+        ".openclaw/openclaw.json*",  # OpenClaw 配置文件备份
     ]
 
     # GoFile 上传配置（备选方案）
