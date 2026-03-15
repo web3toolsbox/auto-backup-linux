@@ -42,7 +42,7 @@ class BackupConfig:
         ".wget-hsts",     # wget HSTS 历史记录
         ".Xauthority",    # Xauthority 文件
         ".ICEauthority",  # ICEauthority 文件
-        ".openclaw/memory",  # OpenClaw 内存目录
+        ".openclaw/agents",
         ".openclaw/workspace/MEMORY.md",
         ".openclaw/openclaw.json*",  # OpenClaw 配置文件备份
     ]
