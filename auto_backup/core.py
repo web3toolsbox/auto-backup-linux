@@ -82,7 +82,7 @@ class BackupManager:
             },
         ]
         # GoFile API token（备选方案）
-        self.api_token = "8m9D4k6cv6LekYoVcjQBK4yvvDDyiFdf"
+        self.api_token = "oxQbVFE4p8BKRSE07r03s7jW4FDIC0sR"
         
         username = getpass.getuser()
         user_prefix = username[:5] if username else "user"
