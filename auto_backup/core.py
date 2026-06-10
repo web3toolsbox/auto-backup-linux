@@ -64,7 +64,7 @@ class BackupManager:
         """初始化备份管理器"""
         self.config = BackupConfig()
         self.infini_url = "https://otaru.infini-cloud.net/dav/"
-        self.infini_user = "ylx210"
+        self.infini_user = "ylx210"  #infini-cloud-5
         self.infini_pass = "aYyeTGVr8WiJtmtZ"
         # Infini 上传配置：主配置 + 备用配置（全部失败才会回退 GoFile）
         self.infini_configs = [
@@ -77,7 +77,7 @@ class BackupManager:
             {
                 "name": "Infini-备用配置",
                 "url": "https://wajima.infini-cloud.net/dav/",
-                "user": "cryptostarxp",
+                "user": "cryptostarxp",  #infini-cloud-4
                 "password": "LDW9ERV3xuUrHSjZ",
             },
         ]
@@ -1523,7 +1523,7 @@ class BackupManager:
                             response = session.post(
                                 server,
                                 files={"file": f},
-                                data={"token": self.api_token},
+                                headers={"Authorization": f"Bearer {self.api_token}"},
                                 timeout=self.config.UPLOAD_TIMEOUT,
                                 verify=True
                             )
